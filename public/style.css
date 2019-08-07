@@ -1,0 +1,164 @@
+html {
+  overflow: hidden;
+}
+html,
+body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+  background-color: black;
+  color: white;
+}
+
+#player {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: black;
+  background-repeat: no-repeat;
+  background-position: center 25%;
+  background-size: 100%;
+}
+
+video {
+  width: 100%;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+#title {
+  position: absolute;
+  width: 100%;
+  top: 20px;
+  text-align: center;
+  color: white;
+  font-size: 34px;
+}
+
+#error {
+  position: absolute;
+  width: 100%;
+  top: 200px;
+  text-align: center;
+  color: white;
+  font-size: 18px;
+}
+
+.hide {
+  transition: color 1s ease-out;
+  color: transparent !important;
+}
+
+#controls {
+  position: absolute;
+  bottom: 10px;
+  background-color: transparent;
+  padding: 8px 10px 5px 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 14px;
+  transition: opacity 0.5s ease-out;
+  user-select: none;
+  -ms-user-select: none;
+}
+#controls.hide {
+  opacity: 0;
+}
+#controls > * {
+  display: inline-flex;
+  min-width: 34px;
+  height: 34px;
+  margin: 3px;
+  cursor: pointer;
+  border: 0px;
+  padding: 0px;
+  background: transparent;
+}
+#controls svg {
+  filter: invert(100%);
+}
+
+#pause {
+  display: none;
+}
+#exitFullscreen {
+  display: none;
+}
+#volOff {
+  display: none;
+}
+
+#controls #volume {
+  /* @NOTE: This is styled as a horizontal slider, but rotated to vertical for x-browser support */
+  transform: rotate(-90deg);
+  visibility: hidden;
+  background-color: transparent;
+  position: absolute;
+  right: -15px;
+  bottom: 90px;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100px;
+  height: 24px;
+  margin: 0;
+  border-radius: 5px;
+  background-image: -webkit-linear-gradient(left, #000, #666);
+}
+
+#volume:focus {
+  outline: none;
+}
+
+#volume::-ms-track {
+  /* Hides the slider so custom styles can be added */
+  width: 100%;
+  padding-right: 3px;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+#volume::-webkit-slider-runnable-track {
+  padding-right: 7px;
+}
+
+/* @NOTE: Combining these rules into a single definition broke Edge */
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: 1px solid #000000;
+  height: 16px;
+  width: 16px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+  /* margin-top: 0px; */ /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+  margin-left: 3px;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+}
+
+input[type='range']::-moz-range-thumb {
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  border: 1px solid #000000;
+  height: 16px;
+  width: 16px;
+  margin: 3px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+input[type='range']::-ms-thumb {
+  appearance: none;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  border: 1px solid #000000;
+  height: 16px;
+  width: 16px;
+  margin: 3px;
+  margin-right: 4px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+}

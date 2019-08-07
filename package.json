@@ -1,0 +1,60 @@
+{
+  "name": "@atmos-inc/stream",
+  "version": "0.0.1",
+  "description": "Streaming HTML5 video server with extensible features.",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js open",
+    "cloc": "cloc --exclude-dir=\"node_modules,coverage,dist\" --exclude-lang=\"Markdown,JSON\" .",
+    "link": "npm link \"@atmos-inc/standard\" && npm link \"@atmos-inc/io\" && npm link \"@atmos-inc/express\"",
+    "postinstall": "npm run link",
+    "lint": "eslint src/**/*.js plugins/**/*.js public/**/*.js",
+    "test": "mocha ./test/node-bootstrap.js ./src/**/*-test.js ./plugins/**/*-test.js",
+    "test:dom": "mocha ./test/jsdom-bootstrap.js ./src/**/*-test.js ./plugins/**/*-test.js ./src/**/*-test-web.js",
+    "coverage": "nyc npm test",
+    "coverage:html": "nyc --reporter=html npm test",
+    "coverage:watch": "nodemon --exec nyc --reporter=lcov --reporter=text npm run test",
+    "coverage:dom": "nyc npm run test:dom",
+    "coverage:dom:html": "nyc --reporter=html npm run test:dom",
+    "coverage:dom:watch": "nodemon --verbose --exec nyc --reporter=lcov --reporter=text npm run test:dom",
+    "preflight": "npm run lint && npm run coverage && npm run coverage:dom && echo ALL GOOD"
+  },
+  "author": "Marcus Pope",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.1.0",
+    "eslint-config-standard": "^13.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "mocha": "^6.2.0",
+    "mocha-jsdom": "^2.0.0",
+    "node-fetch": "^2.6.0",
+    "nyc": "^14.1.1",
+    "sinon": "^7.3.2",
+    "supertest": "^4.0.2"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "skip-full": false,
+    "branches": 90,
+    "lines": 90,
+    "functions": 90,
+    "statements": 90,
+    "exclude": [
+      "coverage/**",
+      "**/*-test.js",
+      "**/*-test-web.js",
+      "**/test.js"
+    ]
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "assets/*"
+    ]
+  }
+}

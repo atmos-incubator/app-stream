@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Atmos Stream</title>
+    <link href="/style.css" type="text/css" rel="stylesheet" />
+    <script src="/standard.js"></script>
+    <script src="/icons.js"></script>
+  </head>
+  <body>
+    <div id="player">
+      <div id="title" class="hide">
+        <div class="name"></div>
+        <div class="progress"></div>
+      </div>
+      <div id="error" class="hide"></div>
+      <video id="vp" preload="none"></video>
+      <div id="controls">
+        <button
+          id="fullscreen"
+          title="Full Screen Mode"
+          class="ico-fullscreen x32"
+        ></button>
+        <button
+          id="exitFullscreen"
+          title="Exit Full Screen Mode"
+          class="ico-fullscreen-exit x32"
+        ></button>
+        <button
+          id="prevVideo"
+          title="Previous Video"
+          class="ico-skip-previous x32"
+        ></button>
+        <button
+          id="rewind30"
+          title="Rewind 30 Seconds"
+          class="ico-replay-30 x32"
+        ></button>
+        <button id="pause" title="Pause Video" class="ico-pause x32"></button>
+        <button
+          id="play"
+          title="Play Video"
+          class="ico-play-circle-outline x32"
+        ></button>
+        <button
+          id="skip30"
+          title="Skip Ahead 30 Seconds"
+          class="ico-forward-30 x32"
+        ></button>
+        <button
+          id="nextVideo"
+          title="Next Video"
+          class="ico-skip-next x32"
+        ></button>
+        <button id="volControl">
+          <input
+            id="volume"
+            title="Adjust Volume"
+            orient="vertical"
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value="1"
+          />
+          <i id="volOn" title="100%" class="ico-volume-up x32"></i>
+          <i id="volOff" title="0%" class="ico-volume-mute x32"></i>
+        </button>
+      </div>
+    </div>
+    <script src="/client.js"></script>
+  </body>
+</html>
