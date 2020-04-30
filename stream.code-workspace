@@ -30,6 +30,16 @@
     },
     "eslint.autoFixOnSave": true,
     "editor.wordWrapColumn": 120,
-    "vim.textwidth": 120
+    "vim.textwidth": 120,
+    "todo-tree.filtering.excludeGlobs": [
+      "**/tmp/*",
+      "**/*.json",
+      "**/node_modules",
+      "**/backlog.md"
+    ],
+    "todo-tree.regex.regex": "@(TODO|FUTURE|BUG|todo|future|bug)",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
   }
 }

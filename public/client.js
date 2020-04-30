@@ -6,6 +6,15 @@
 // @TODO: Finish lib/standard:window/el:invoke() logic to allow for event simulation in tests.
 const app = {
   load: () => {
+    on('hashchange', () => {
+      // Allow easy reset of the progress data
+      if ((window.location.hash || '').includes('reset')) {
+        localStorage.clear();
+        history.replaceState('', document.title, window.location.pathname + window.location.search);
+        location.reload();
+      }
+    });
+
     app.getAppConfig().then(function() {
       app
         .getAllVideos()
@@ -21,18 +30,19 @@ const app = {
           app.onReady();
           ui.player.next();
         })
-        .catch(e => ui.showError(e));
+        .catch((e) => ui.showError(e));
     });
   },
   onReady: Event.queue(true),
   videos: [],
-  getVid: id => app.videos.ea(v => ea.exitIf(v.id === id, v)),
-  remVid: id => {
+  getVid: (id) => app.videos.ea((v) => ea.exitIf(v.id === id, v)),
+  remVid: (id) => {
     // remove video from list
+    // @FUTURE: Only delete the video based on configuration setting
     app.getVid(id).isDeleted = true;
     app.saveProgress(id, 0);
   },
-  nextVid: vid => {
+  nextVid: (vid) => {
     if (vid == null) return app.videos[0];
     let idx = app.videos.indexOf(vid);
     if (idx + 1 === app.videos.length) {
@@ -41,25 +51,26 @@ const app = {
     return app.videos[idx + 1];
   },
   playCount: () => {
-    return app.videos.ea(v => (v.isDeleted ? 0 : 1)).sum();
+    return app.videos.ea((v) => (v.isDeleted ? 0 : 1)).sum();
   },
   hasPlayable: () => {
-    return app.videos.find(v => v.isDeleted != true);
+    return app.videos.find((v) => v.isDeleted != true);
   },
   saveProgress: (id, amt) => {
+    if (amt === undefined) return; // @NOTE: the video player will report undefined for a few ms at the start of a video
+
     const vid = app.getVid(id || app.curVid.id);
-    if (amt !== undefined) vid.progress = amt;
+    vid.progress = amt;
+
     // store progress meta to localStorage for persistence across page refresh
     localStorage.setItem(
       vid.id,
-      ea(vid)
-        .slice(['progress', 'isDeleted'])
-        .stringify()
+      ea(vid).slice(['progress', 'isDeleted']).stringify()
     );
   },
   setVidVolume: (id, amt) => {
     // update volume and server side meta if real change
-    if (app.getVid(id).vol == amt) return;
+    if (app.getVid(id).vol == amt || amt == 0) return;
     ui.player.setVolume(amt);
     fetch.post('/volume', { id, amt });
   },
@@ -70,25 +81,25 @@ const app = {
   getAppConfig: () => {
     return fetch
       .latest('/config')
-      .then(res => res.text())
-      .then(res => {
+      .then((res) => res.text())
+      .then((res) => {
         app.config = res.parse();
-        app.config.ea(plug => {
+        app.config.ea((plug) => {
           app.onReady(() => plug.src(plug.conf, app, ui.player, ui.controls));
         });
       })
-      .catch(err => ui.showError(err));
+      .catch((err) => ui.showError(err));
   },
   getAllVideos: () => {
     return fetch.latest
       .json('/videos')
-      .catch(err => ui.showError(err))
-      .then(res => {
+      .catch((err) => ui.showError(err))
+      .then((res) => {
         app.videos = res;
         app.curVid = null;
       })
       .then(() => {
-        app.videos.ea(v => {
+        app.videos.ea((v) => {
           ea((localStorage.getItem(v.id) || '{}').parse() || {}, (val, key) => {
             v[key] = val;
           });
@@ -113,7 +124,7 @@ const ui = {
   exitFullscreen: find('#exitFullscreen'),
   vp: find('#vp'),
   hideTitle: () => ui.title.classList.add('hide'),
-  showTitle: dur => {
+  showTitle: (dur) => {
     try {
       ui.name.innerText = app.curVid.title;
       if (app.curVid.duration) {
@@ -132,7 +143,7 @@ const ui = {
       ui.showError(e);
     }
   },
-  showError: e => {
+  showError: (e) => {
     ui.error.innerText = isa(e, 'error') ? e.code + ': ' + e.message : e;
     ui.error.className = '';
     setTimeout(() => ui.error.classList.add('hide'), 5000);
@@ -149,13 +160,12 @@ ui.vp.on({
     app.remVid(app.curVid.id);
     ui.player.next();
   },
-  loadedmetadata: e => {
+  loadedmetadata: (e) => {
     app.curVid.duration = ui.vp.duration;
   },
-  progress: () => {
+  timeupdate: () => {
     // record the amount of video we just watched
-    app.curVid.progress = ui.vp.currentTime;
-    app.saveProgress();
+    app.saveProgress(app.curVid.id, ui.vp.currentTime);
 
     // Allow `end` property to skip over advertisements at end of videos
     if (
@@ -177,11 +187,11 @@ Object.assign(ui.player, {
   onFullscreenChange: Event.queue(),
 
   isPlaying: () => ui.vp.isPlaying,
-  playVid: id => {
+  playVid: (id) => {
     ui.vp.src = '/video?id=' + id;
     ui.vp.load();
 
-    ui.vp.currentTime = app.curVid.progress || app.curVid.start * 60 || 0;
+    ui.vp.currentTime = app.curVid.progress || (app.curVid.start ? app.curVid.start * 60 : 0);
 
     ui.player.play().then(() => {
       // hide thumb
@@ -203,7 +213,7 @@ Object.assign(ui.player, {
 
     return ui.vp
       .play()
-      .catch(e => {
+      .catch((e) => {
         // @NOTE: invalid/unsupported video format errors
         if (e.code === 9 || e.code === 3 || e.code === 4) {
           app.remVid(app.curVid.id);
@@ -219,7 +229,7 @@ Object.assign(ui.player, {
         ui.pause.show('inline-flex');
         ui.play.show(false);
       })
-      .catch(e => alert(e));
+      .catch((e) => alert(e));
   },
   pause: () => {
     ui.play.show();
@@ -227,10 +237,10 @@ Object.assign(ui.player, {
     ui.showTitle();
     ui.vp.pause();
   },
-  skip: n => {
+  skip: (n) => {
     ui.vp.currentTime = ui.vp.currentTime + n;
   },
-  next: dir => {
+  next: (dir) => {
     if (!app.hasPlayable()) {
       ui.controls.show(false);
       return ui.showError('There are no more videos.');
@@ -276,7 +286,9 @@ Object.assign(ui.player, {
       app.curVid = nextVid;
 
       // Set volume and tracker
-      ui.player.setVolume(app.curVid.vol || 1);
+      if (ui.volume.value > 0) {
+        ui.player.setVolume(app.curVid.vol || 1);
+      }
 
       // show title for video
       ui.showTitle(2000);
@@ -289,7 +301,7 @@ Object.assign(ui.player, {
       }
     }
   },
-  setVolume: amt => {
+  setVolume: (amt) => {
     ui.vp.volume = amt;
     app.curVid.vol = amt;
     ui.volume.value = amt;
@@ -313,7 +325,7 @@ Object.assign(ui.player, {
         setTimeout(hideControls, 1000);
       });
     },
-    click: e => {
+    click: (e) => {
       e.stopPropagation();
       e.preventDefault();
       const id = e.target.parent('button').id;

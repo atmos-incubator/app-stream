@@ -3,19 +3,30 @@ require('@atmos-inc/io');
 // Startup an express server
 const app = require('@atmos-inc/express').init({
   basePath: io.path(__dirname, '..').valueOf(),
+  static: io.path(__dirname, '..', 'public'),
   openBrowser: process.argv.includes('open'),
-  port: ea(process.argv, v => ea.exitIf(v.isNumeric(), v)).or(80)
+  port: ea(process.argv, (v) => ea.exitIf(v.isNumeric(), v)).or(80)
 });
+
+// @NOTE: just tinkering with cors middleware
+/*
+const opts = {
+  origin: ['https://atmos.inc', 'http://localhost'],
+  optionsSuccessStatus: 200
+};
+const cors = require('cors');
+app.use(cors(opts));
+*/
 
 // look through args for a path, or default to cwd
 app.assetPath = process.argv
   .afterIdx(1)
-  .ea(v => ea.exitIf(io.path(v).exists(), v))
+  .ea((v) => ea.exitIf(io.path(v).exists(), v))
   .or(process.cwd())
   .path();
 
 // look for a 'stream' / 'assets' folder
-['stream', 'assets'].ea(seg => {
+['stream', 'assets'].ea((seg) => {
   if (io.path(app.assetPath, seg).exists()) {
     ea.exit(app.assetPath.push(seg));
   }
@@ -29,7 +40,7 @@ app.loadVideos();
 // Load configuration for this stream
 const appConfPath = io.file(app.assetPath, 'index.js');
 // @TODO: require.catch(appConfPath.valueOf()).or({});
-app.conf = appConfPath.exists() ? require(appConfPath.valueOf()) : {};
+app.conf = appConfPath.exists() ? require(appConfPath.resolve().valueOf()) : {};
 
 app.get('/config', (req, res) => {
   // Send the source of each registered plugin to the client
@@ -39,7 +50,9 @@ app.get('/config', (req, res) => {
       if (app.pluginMap.has(key)) {
         return { src: app.pluginMap[key], conf: plugConf };
       }
-    }).or([]).stringify()
+    })
+      .or([])
+      .stringify()
   );
 });
 
